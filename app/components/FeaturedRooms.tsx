@@ -79,15 +79,7 @@ export default function FeaturedRooms() {
           Our Locations
         </h3>
         <div className="rounded-lg overflow-hidden shadow-2xl">
-          <GoogleMapComponent
-            locations={
-              condos?.map((condo) => ({
-                id: condo._id,
-                name: condo.name,
-                ...condo.location,
-              })) || []
-            }
-          />
+         
         </div>
       </div>
     </section>

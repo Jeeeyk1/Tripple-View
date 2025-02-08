@@ -57,7 +57,6 @@ export default async function SearchResults({ query }: { query: string }) {
       </div>
       <div>
         <h2 className="text-2xl font-semibold mb-4">Our Location</h2>
-        <GoogleMapComponent locations={[{ id: 1, name: "Tripleview Residences", ...location }]} />
       </div>
     </div>
   )

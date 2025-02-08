@@ -30,6 +30,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { addDays, isBefore, isAfter, isSameDay } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import type React from "react"; // Added import for React
+import { DateRange } from "react-day-picker";
 
 export default function CondoDetails() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -94,15 +95,13 @@ export default function CondoDetails() {
     }));
   };
 
-  const handleDateSelect = (
-    range: { from: Date | undefined; to: Date | undefined } | undefined
-  ) => {
+  const handleDateSelect = (range: DateRange | undefined) => {
     setFormValues((prev) => ({
       ...prev,
       checkIn: range?.from,
       checkOut: range?.to,
-    }));
-  };
+    }))
+  }
 
   const isDateUnavailable = (date: Date) => {
     return bookedDates.some((bookedDate) => isSameDay(date, bookedDate));
@@ -290,19 +289,28 @@ export default function CondoDetails() {
                       <div>
                         <Label>Select Dates</Label>
                         <Calendar
-                          mode="range"
-                          selected={{
-                            from: formValues.checkIn,
-                            to: formValues.checkOut,
-                          }}
-                          onSelect={handleDateSelect}
-                          disabled={(date) =>
-                            isDateUnavailable(date) ||
-                            isBefore(date, new Date()) ||
-                            isAfter(date, addDays(new Date(), 90))
-                          }
-                          className="rounded-md border"
-                        />
+                            mode="range"
+                            selected={{
+                              from: formValues.checkIn,
+                              to: formValues.checkOut,
+                            }}
+                            onSelect={handleDateSelect}
+                            disabled={(date) =>
+                              isDateUnavailable(date) ||
+                              isBefore(date, new Date()) ||
+                              isAfter(date, addDays(new Date(), 90))
+                            }
+                            modifiers={{ booked: isDateUnavailable }}
+                            modifiersStyles={{
+                              booked: {
+                                backgroundColor: "#FEE2E2",
+                                color: "#EF4444",
+                                cursor: "not-allowed",
+                                opacity: 0.7,
+                              },
+                            }}
+                            className="rounded-md border"
+                          />
                       </div>
                       <div>
                         <Label htmlFor="guests">Number of Guests</Label>
