@@ -202,7 +202,7 @@ export function Navbar({ userSession }: NavbarProps) {
                       <Link href="/login">Login</Link>
                     </Button>
                     <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
-                      <Link href="/register">Register</Link>
+                      <Link href="/login">Register</Link>
                     </Button>
                   </>
                 )}
