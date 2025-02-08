@@ -11,7 +11,6 @@ import { useGetUserById } from "@/lib/api/api";
 import { UserType } from "@/lib/types";
 
 export default function ProfilePage() {
-  const { data: session, update } = useSession();
   const params = useParams();
   const router = useRouter();
   const {
@@ -101,10 +100,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!session) {
-    router.push("/login");
-    return null;
-  }
+
 
   return (
     <div className="container mx-auto px-4 py-8 mt-11">
