@@ -175,7 +175,7 @@ export default function Home() {
                 <h3 className="text-xl font-bold mb-2">Flexible Terms</h3>
                 <p className="text-gray-600">
                   Choose from daily, weekly, or monthly stays to suit your
-                  needs, whether you're on a short trip or an extended stay.
+                  needs, whether you&apos;re on a short trip or an extended stay.
                 </p>
               </CardContent>
             </Card>

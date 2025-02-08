@@ -43,7 +43,7 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
   const queryClient = useQueryClient();
   const reservations =
     userInfo.userType == UserType.ADMIN ? reservationsAll : reservationHost;
-  const { mutate: updateReservation, isLoading } = useMutation({
+  const { mutate: updateReservation } = useMutation({
     mutationFn: approveOrDeclineReservation,
     onMutate: async ({ id, action }) => {
       await queryClient.cancelQueries({ queryKey: ["reservations"] });
