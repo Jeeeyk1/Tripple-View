@@ -3,9 +3,10 @@ import dbConnect from "@/lib/mongodb";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
+import Cookies from "js-cookie";
+import { cookies } from "next/headers";
 import { UserType } from "@/lib/types";
 import User from "@/models/User";
-
 export async function POST(request: Request) {
   await dbConnect();
   const { email, password } = await request.json();
@@ -18,12 +19,16 @@ export async function POST(request: Request) {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
+      console.log("test");
+
       return NextResponse.json(
         { message: "Invalid credentials" },
         { status: 401 }
       );
     }
+    console.log("test");
 
     const token = jwt.sign(
       { userId: user._id, email: user.email, userType: user.userType },
@@ -34,6 +39,8 @@ export async function POST(request: Request) {
     let redirectUrl = "/";
     switch (user.userType) {
       case UserType.HOST:
+        redirectUrl = "/dashboard";
+        break;
       case UserType.ADMIN:
         redirectUrl = "/dashboard";
         break;
@@ -41,32 +48,32 @@ export async function POST(request: Request) {
         redirectUrl = "/condo";
         break;
     }
-
-    // 🔹 Use "Set-Cookie" header instead of cookies().set()
-    const tokenCookie = serialize("token", token, {
+    cookies().set("userId", user._id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // 🔥 Important for cross-origin requests!
-      maxAge: 3600, // 1 hour
+      sameSite: "strict",
+      maxAge: 30600,
       path: "/",
     });
-
-    const userIdCookie = serialize("userId", String(user._id), {
+    cookies().set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 3600,
+      sameSite: "strict",
+      maxAge: 30600,
       path: "/",
     });
-
+    const cookie = serialize("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30600,
+      path: "/",
+    });
     const response = NextResponse.json(
-      { token, user, redirectUrl },
+      { token,  user, redirectUrl },
       { status: 200 }
     );
-
-    response.headers.append("Set-Cookie", tokenCookie);
-    response.headers.append("Set-Cookie", userIdCookie);
-
+    response.headers.append("Set-Cookie", cookie);
     return response;
   } catch (error) {
     console.error("Login error:", error);

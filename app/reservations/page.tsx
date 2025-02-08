@@ -24,7 +24,7 @@ import { ReservationStatus } from "@/enums";
 
 interface Reservation {
   _id: string;
-
+  guestName: string;
   checkIn: string;
   checkOut: string;
   guests: number;
@@ -163,7 +163,7 @@ export default function ReservationsPage() {
                 </div>
                 <CardHeader>
                   <CardTitle className="flex justify-between items-center">
-                    <span>test</span>
+                    <span>{reservation.guestName}</span>
                     <Badge
                       className="ml-2"
                       variant={getStatusVariant(reservation.status)}
