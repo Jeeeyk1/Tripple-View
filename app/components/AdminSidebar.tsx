@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 interface AdminSidebarProps {
   userInfo: User;
 }
-
+ 
 export function AdminSidebar({ userInfo }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
