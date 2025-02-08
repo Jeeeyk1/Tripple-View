@@ -31,7 +31,7 @@ import { addDays, isBefore, isAfter, isSameDay } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import type React from "react"; // Added import for React
 import { DateRange } from "react-day-picker";
-
+export const dynamicParams = true;
 export default function CondoDetails() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [userId, setUserId] = useState();

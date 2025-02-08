@@ -1,5 +1,5 @@
 import CondoForm from "../../../components/CondoForm"
-
+export const dynamicParams = true;
 export default function EditCondoPage({ params }: { params: { id: string } }) {
   return (
     <div className="max-w-4xl mx-auto py-8">
