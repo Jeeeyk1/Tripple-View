@@ -14,7 +14,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   await dbConnect()
   const data = await request.json()
-  const condo = await Condo.findByIdAndUpdate(params.id, data, { new: true })
+  const condo = await Condo.findByIdAndUpdate(params.id, data, { new: true }).populate("owner", "name")
   if (!condo) {
     return NextResponse.json({ message: "Condo not found" }, { status: 404 })
   }

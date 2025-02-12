@@ -52,6 +52,7 @@ export default function CondoDetails() {
     error,
   } = useGetCondoById(params.id as string);
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
+
   const user = Cookies.get("user");
   const [ownerName, setOwnerName] = useState("");
 
@@ -69,9 +70,7 @@ export default function CondoDetails() {
     const startDate = new Date();
     const endDate = addDays(startDate, 90); // Fetch availability for the next 90 days
     const response = await fetch(
-      `/api/availability/${
-        params.id
-      }?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+      `/api/availability/${params.id}?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
     );
     if (response.ok) {
       const data = await response.json();
@@ -80,11 +79,13 @@ export default function CondoDetails() {
       console.error("Failed to fetch availability");
     }
   };
+
   const getDayClass = (date: Date) => {
     return isDateUnavailable(date)
       ? "bg-red-200 text-gray-500 cursor-not-allowed"
       : undefined;
   };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -100,12 +101,13 @@ export default function CondoDetails() {
       ...prev,
       checkIn: range?.from,
       checkOut: range?.to,
-    }))
-  }
+    }));
+  };
 
   const isDateUnavailable = (date: Date) => {
     return bookedDates.some((bookedDate) => isSameDay(date, bookedDate));
   };
+
   const getTotalDays = (
     checkIn: string | undefined,
     checkOut: string | undefined
@@ -120,6 +122,7 @@ export default function CondoDetails() {
 
     return totalDays;
   };
+
   const fetchOwnerName = async () => {
     if (condoData?.owner) {
       try {
@@ -135,6 +138,7 @@ export default function CondoDetails() {
       }
     }
   };
+
   const submitReservation = async (e: React.FormEvent) => {
     const totalDays = getTotalDays(
       formValues.checkIn?.toISOString(),
@@ -193,11 +197,8 @@ export default function CondoDetails() {
 
   if (isLoading)
     return (
-      <div>
-        {" "}
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
   if (isError) return <div>Error: {error.message}</div>;
@@ -262,10 +263,10 @@ export default function CondoDetails() {
                       </DialogDescription>
                     </DialogHeader>
                     <form
-                      className="space-y-4"
+                      className="space-y-4 w-full max-w-xl mx-auto"
                       onSubmit={(e) => submitReservation(e)}
                     >
-                      <div>
+                   <div>
                         <Label htmlFor="name">Full Name</Label>
                         <Input
                           id="name"
@@ -364,3 +365,4 @@ export default function CondoDetails() {
     </div>
   );
 }
+

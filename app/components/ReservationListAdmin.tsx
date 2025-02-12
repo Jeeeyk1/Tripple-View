@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,12 +16,14 @@ import { useGetReservationByHostId, useGetReservations } from "@/lib/api/api";
 import { useEffect, useState } from "react";
 import { Reservation, User, UserType } from "@/lib/types";
 import { approveOrDeclineReservation } from "@/lib/api/mutation";
+
 enum ReservationStatus {
   PENDING = "pending",
   APPROVED = "approved",
   DECLINED = "declined",
   CANCELLED = "cancelled",
 }
+
 interface ResAdminProps {
   userInfo: User;
 }
@@ -48,10 +49,8 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
     onMutate: async ({ id, action }) => {
       await queryClient.cancelQueries({ queryKey: ["reservations"] });
 
-      // Get the previous reservations from the cache
       const previousReservations = queryClient.getQueryData(["reservations"]);
 
-      // Optimistically update the UI
       queryClient.setQueryData(["reservations"], (oldData: any) => {
         if (!oldData) return oldData;
 
@@ -65,8 +64,6 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
       return { previousReservations };
     },
     onError: (error, _, context) => {
-      console.error("Error updating reservation:", error);
-      // Rollback to the previous state if the mutation fails
       if (context?.previousReservations) {
         queryClient.setQueryData(
           ["reservations"],
@@ -79,19 +76,25 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
     },
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 7;
+
   if (loading || loadingAll)
     return (
-      <div>
-        {" "}
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
 
   const filteredReservations = status
     ? reservations?.filter((res) => res.status === status)
     : reservations;
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentReservations = filteredReservations?.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   const handleApprove = (id: string) => {
     updateReservation({ id, action: "accept" });
@@ -106,6 +109,10 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
     console.log(`Decline reservation with id: ${id}`);
   };
 
+  const totalPages = filteredReservations
+    ? Math.ceil(filteredReservations?.length / pageSize)
+    : 0;
+
   return (
     <div className="space-y-4 p-5">
       <h2 className="text-2xl font-semibold mb-4 ">
@@ -113,7 +120,7 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
           ? `${status.charAt(0).toUpperCase() + status.slice(1)} Reservations`
           : "All Reservations"}
       </h2>
-      {filteredReservations?.map((reservation) => (
+      {currentReservations?.map((reservation) => (
         <Card key={reservation._id}>
           <CardHeader>
             <CardTitle>{reservation.condoId}</CardTitle>
@@ -167,6 +174,30 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
           </CardFooter>
         </Card>
       ))}
+      <div className="flex justify-between mt-4 items-center">
+        <div>
+          <Button
+            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <span className="mx-2">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            onClick={() =>
+              setCurrentPage(Math.min(currentPage + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+        <div>
+          <span>Total Reservations: {filteredReservations?.length}</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { Condo, Reservation, User } from "@/lib/types";
+import type { Condo, CondoById, Reservation, User } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 
 const API_URL = "/api";
@@ -60,7 +60,7 @@ export const useGetReservationById = (userId: string | null) => {
   });
 };
 
-async function getCondoById(id: string): Promise<Condo> {
+async function getCondoById(id: string): Promise<CondoById> {
   const response = await fetch(`${API_URL}/condos/${id}`);
   if (!response.ok) {
     throw new Error("Failed to fetch condo");

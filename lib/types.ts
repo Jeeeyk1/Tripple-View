@@ -15,6 +15,24 @@ export enum UserType {
   HOST = "HOST",
   ADMIN = "ADMIN",
 }
+export interface CondoById {
+  images: string[];
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  amenities: string[];
+  isAvailable: boolean;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  owner: {
+    _id:string,
+    name:string
+  }; // This will be the User _id
+}
 export interface Condo {
   images: string[];
   _id: string;

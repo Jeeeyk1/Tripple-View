@@ -5,7 +5,7 @@ const CondoSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   image: { type: String, required: true },
-  images: { type: Array, required: true },
+  images: { type: Array, required: false },
   amenities: [{ type: String }],
   isAvailable: { type: Boolean, required: true },
   location: {

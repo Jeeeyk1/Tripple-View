@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
-import type { CondoById, User } from "@/lib/types";
+import type { Condo, User } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,35 +21,32 @@ import { useGetCondoById, useGetUsers } from "@/lib/api/api";
 import Image from "next/image";
 
 interface CondoFormProps {
-  condoId: string;
+  condoId?: string;
 }
 
-const emptyCondo: Partial<CondoById> = {
+const emptyCondo: Partial<Condo> = {
   name: "",
   price: 0,
   description: "",
-  image: "/placeholder.svg",
-  amenities: [],
+  image: "",
   images: [],
-  owner: { _id: "", name: "" },
+  amenities: [],
+  owner: "",
+  isAvailable: true,
 };
 
-export default function CondoForm({ condoId }: CondoFormProps) {
+export default function CondoForm({}: CondoFormProps) {
+  const [formData, setFormData] = useState<Partial<Condo>>(emptyCondo);
   const [hosts, setHosts] = useState<User[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
   const [isUploading, setIsUploading] = useState(false);
-  const { data: users, isLoading } = useGetUsers();
-  const { data: condoSingle } = useGetCondoById(condoId);
+  const { data: users } = useGetUsers();
   const router = useRouter();
   const { addCondo, updateCondo } = useAppStore();
-  const { data: condo } = useGetCondoById(condoId);
-  const [formData, setFormData] = useState<Partial<CondoById>>(
-    condo ? condo : emptyCondo
-  );
-
   const uploadImage = async () => {
     if (!imageFile) return null;
 
@@ -81,18 +78,7 @@ export default function CondoForm({ condoId }: CondoFormProps) {
       setIsUploading(false);
     }
   };
-  const handleMultipleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
 
-    if (files.length > 0) {
-      setImageFiles(files);
-
-      const previews = files.map((file) => URL.createObjectURL(file));
-      setImagePreviews(previews);
-    }
-  };
   useEffect(() => {
     const fetchHosts = async () => {
       try {
@@ -109,29 +95,8 @@ export default function CondoForm({ condoId }: CondoFormProps) {
     };
 
     fetchHosts();
+  }, []);
 
-    if (condoId) {
-      const fetchCondo = async () => {
-        const response = await fetch(`/api/condos/${condoId}`);
-        const data = await response.json();
-        console.log(JSON.stringify(data.owner.name));
-        setFormData(data);
-      };
-      fetchCondo().then((res) => {
-        console.log(formData);
-      });
-    }
-  }, [condoId]);
-  if (isLoading) {
-    return (
-      <div>
-        {" "}
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
-      </div>
-    );
-  }
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -142,13 +107,6 @@ export default function CondoForm({ condoId }: CondoFormProps) {
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const handleOwnerChange = (name: string, id?: string) => {
-    if (id)
-      setFormData((prev) => ({
-        ...prev,
-        owner: { _id: id, name: name },
-      }));
-  };
 
   const handleAmenitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -157,12 +115,26 @@ export default function CondoForm({ condoId }: CondoFormProps) {
       amenities: value.split(",").map((item) => item.trim()),
     }));
   };
+  const handleMultipleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+
+    if (files.length > 0) {
+      setImageFiles(files);
+
+      const previews = files.map((file) => URL.createObjectURL(file));
+      setImagePreviews(previews);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       let imageUrl = formData.image;
       let imageUrls = formData.images || [];
+
       if (imageFiles.length > 0) {
         const uploadedUrls = await uploadImages();
         if (uploadedUrls.length > 0) {
@@ -187,33 +159,31 @@ export default function CondoForm({ condoId }: CondoFormProps) {
         image: imageUrl,
         images: imageUrls,
       };
+
       console.log("Submitting data:", updatedFormData); // Debugging
       console.log("Sending request to /api/condos");
-      const url = condoId ? `/api/condos/${condoId}` : "/api/condos";
-      const method = condoId ? "PUT" : "POST";
-      const response = await fetch(url, {
-        method,
+
+      const response = await fetch("/api/condos", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updatedFormData),
       });
-      if (response.ok) {
-        const updatedCondo = await response.json();
-        if (condoId) {
-          updateCondo(condoId, updatedCondo);
-          toast({
-            title: "Success",
-            description: "Condo updated successfully",
-          });
-        } else {
-          addCondo(updatedCondo);
-          toast({ title: "Success", description: "Condo added successfully" });
-        }
-        router.push("/admin/condos");
-      } else {
-        throw new Error("Failed to submit condo");
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText);
+        throw new Error(`Failed to submit condo: ${errorText}`);
       }
+
+      const updatedCondo = await response.json();
+      console.log("Condo added:", updatedCondo); // Debugging
+
+      addCondo(updatedCondo);
+      toast({ title: "Success", description: "Condo added successfully" });
+
+      router.push("/admin/condos");
     } catch (error) {
       console.error("Error submitting condo:", error);
       toast({
@@ -272,7 +242,7 @@ export default function CondoForm({ condoId }: CondoFormProps) {
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>{condoId ? "Edit Condo" : "Add New Condo"}</CardTitle>
+        <CardTitle>{"Add New Condo"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -308,7 +278,7 @@ export default function CondoForm({ condoId }: CondoFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="image">Image</Label>
+            <Label htmlFor="image">Featured Image</Label>
             <Input
               id="image"
               name="image"
@@ -316,17 +286,6 @@ export default function CondoForm({ condoId }: CondoFormProps) {
               accept="image/*"
               onChange={handleImageChange}
             />
-            {formData.image && !imagePreview && (
-              <div className="mt-2">
-                <Image
-                  src={formData.image ?? "/placeholder.svg"}
-                  alt="Preview"
-                  width={200}
-                  height={200}
-                  className="rounded-md"
-                />
-              </div>
-            )}
             {imagePreview && (
               <div className="mt-2">
                 <Image
@@ -339,45 +298,32 @@ export default function CondoForm({ condoId }: CondoFormProps) {
               </div>
             )}
           </div>
-             <div className="space-y-2">
-                      <Label htmlFor="images">Display Images</Label>
-                      <Input
-                        id="images"
-                        name="images"
-                        type="file"
-                        accept="image/*"
-                        multiple // Allow multiple image selection
-                        onChange={handleMultipleImageChange}
-                      />
-                      {imagePreviews.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {imagePreviews.map((preview, index) => (
-                            <Image
-                              key={index}
-                              src={preview}
-                              alt={`Preview ${index}`}
-                              width={100}
-                              height={100}
-                              className="rounded-md"
-                            />
-                          ))}
-                        </div>
-                      )}
-                       {imagePreviews.length == 0 &&( formData.images && formData.images?.length>0) &&(
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.images.map((preview, index) => (
-                            <Image
-                              key={index}
-                              src={preview}
-                              alt={`Preview ${index}`}
-                              width={100}
-                              height={100}
-                              className="rounded-md"
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
+          <div className="space-y-2">
+            <Label htmlFor="images">Display Images</Label>
+            <Input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/*"
+              multiple // Allow multiple image selection
+              onChange={handleMultipleImageChange}
+            />
+            {imagePreviews.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {imagePreviews.map((preview, index) => (
+                  <Image
+                    key={index}
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    width={100}
+                    height={100}
+                    className="rounded-md"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="amenities">Amenities (comma-separated)</Label>
             <Input
@@ -391,13 +337,8 @@ export default function CondoForm({ condoId }: CondoFormProps) {
             <Label htmlFor="owner">Owner</Label>
             <Select
               name="owner"
-              value={formData.owner?._id} // ✅ Correct: Use the owner's _id
-              onValueChange={(value) => {
-                const selectedHost = hosts.find((host) => host._id === value);
-                if (selectedHost) {
-                  handleOwnerChange(selectedHost.name, selectedHost._id);
-                }
-              }}
+              value={formData.owner}
+              onValueChange={(value) => handleSelectChange("owner", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select an owner" />
@@ -412,11 +353,7 @@ export default function CondoForm({ condoId }: CondoFormProps) {
             </Select>
           </div>
           <Button type="submit" className="w-full" disabled={isUploading}>
-            {isUploading
-              ? "Uploading..."
-              : condoId
-              ? "Update Condo"
-              : "Add Condo"}
+            {isUploading ? "Uploading..." : "Add Condo"}
           </Button>
         </form>
       </CardContent>
