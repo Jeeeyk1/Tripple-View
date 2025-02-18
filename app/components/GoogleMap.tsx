@@ -28,14 +28,15 @@ const center = {
   lng: 0,
 };
 const destination = { lat: 14.583, lng: 120.983 };
+
 export default function GoogleMapComponent({ locations }: MapProps) {
   const [map, setMap] = useState<any>(null);
-
   const [userLocation, setUserLocation] =
     useState<google.maps.LatLngLiteral | null>(null);
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -48,6 +49,7 @@ export default function GoogleMapComponent({ locations }: MapProps) {
       { enableHighAccuracy: true }
     );
   }, []);
+
   const onLoad = useCallback(
     (map: any) => {
       if (locations.length > 0) {
@@ -90,18 +92,22 @@ export default function GoogleMapComponent({ locations }: MapProps) {
           onLoad={onLoad} // ✅ Keep the map reference
           onUnmount={onUnmount}
         >
-          <DirectionsService
-            options={{
-              origin: userLocation,
-              destination,
-              travelMode: google.maps.TravelMode.DRIVING,
-            }}
-            callback={(result, status) => {
-              if (status === google.maps.DirectionsStatus?.OK) {
-                setDirections(result);
-              }
-            }}
-          />
+          {userLocation && (
+            <DirectionsService
+              options={{
+                origin: userLocation,
+                destination,
+                travelMode: google.maps.TravelMode.DRIVING,
+              }}
+              callback={(result, status) => {
+                if (status === "OK" && result) {
+                  setDirections(result);
+                } else {
+                  console.error("Directions request failed:", status);
+                }
+              }}
+            />
+          )}
 
           {directions && (
             <DirectionsRenderer

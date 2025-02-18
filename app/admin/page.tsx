@@ -73,7 +73,11 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        {userInfo.userType == UserType.ADMIN ? (
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+        ) : (
+          <h1 className="text-3xl font-bold tracking-tight">Host Dashboard</h1>
+        )}
         <Button variant="secondary">
           <Calendar className="mr-2 h-4 w-4" /> Today
         </Button>
