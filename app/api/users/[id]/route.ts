@@ -26,3 +26,17 @@ export async function PUT(
   );
   return NextResponse.json(condos);
 }
+
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { name, email, userType } = await request.json();
+  await dbConnect();
+  const condos = await User.findByIdAndUpdate(
+    params.id,
+    { name, email, userType },
+    { new: true }
+  );
+  return NextResponse.json(condos);
+}

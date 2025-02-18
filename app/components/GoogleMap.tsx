@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { useState, useCallback, useEffect } from "react";
+import {
+  GoogleMap,
+  LoadScript,
+  DirectionsService,
+  DirectionsRenderer,
+  Marker,
+} from "@react-google-maps/api";
 
 interface MapProps {
   locations: Array<{
@@ -21,19 +27,38 @@ const center = {
   lat: 0,
   lng: 0,
 };
-
+const destination = { lat: 14.583, lng: 120.983 };
 export default function GoogleMapComponent({ locations }: MapProps) {
   const [map, setMap] = useState<any>(null);
 
+  const [userLocation, setUserLocation] =
+    useState<google.maps.LatLngLiteral | null>(null);
+  const [directions, setDirections] =
+    useState<google.maps.DirectionsResult | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => console.error("Error getting location:", error),
+      { enableHighAccuracy: true }
+    );
+  }, []);
   const onLoad = useCallback(
-    function callback(map: any) {
-      const bounds = new window.google.maps.LatLngBounds();
-      locations.forEach((location) => {
-        bounds.extend(
-          new window.google.maps.LatLng(location.lat, location.lng)
-        );
-      });
-      map.fitBounds(bounds);
+    (map: any) => {
+      if (locations.length > 0) {
+        const bounds = new window.google.maps.LatLngBounds();
+        locations.forEach((location) => {
+          bounds.extend(
+            new window.google.maps.LatLng(location.lat, location.lng)
+          );
+        });
+        map.fitBounds(bounds);
+      }
       setMap(map);
     },
     [locations]
@@ -49,22 +74,46 @@ export default function GoogleMapComponent({ locations }: MapProps) {
         process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
         "AIzaSyBH2lbklcZ-XOxupp_YSXjx4bVc2RK5YM4"
       }
+      onLoad={() => setMapLoaded(true)}
     >
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={5}
-        onLoad={onLoad}
-        onUnmount={onUnmount}
-      >
-        {locations.map((location) => (
-          <Marker
-            key={location.id}
-            position={{ lat: location.lat, lng: location.lng }}
-            title={location.name}
+      {mapLoaded && userLocation && (
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          zoom={14}
+          center={userLocation} // Ensure the center is only set once
+          options={{
+            zoomControl: true, // ✅ Enable zoom buttons
+            gestureHandling: "greedy", // ✅ Allow pinch-to-zoom & scroll zoom
+            disableDefaultUI: false, // ✅ Keep UI controls visible
+            mapTypeControl: true, // ✅ Allow changing map type
+          }}
+          onLoad={onLoad} // ✅ Keep the map reference
+          onUnmount={onUnmount}
+        >
+          <DirectionsService
+            options={{
+              origin: userLocation,
+              destination,
+              travelMode: google.maps.TravelMode.DRIVING,
+            }}
+            callback={(result, status) => {
+              if (status === google.maps.DirectionsStatus?.OK) {
+                setDirections(result);
+              }
+            }}
           />
-        ))}
-      </GoogleMap>
+
+          {directions && (
+            <DirectionsRenderer
+              directions={directions}
+              options={{
+                preserveViewport: true, // ✅ Prevents automatic zoom/centering
+                suppressMarkers: false, // Keep markers if needed
+              }}
+            />
+          )}
+        </GoogleMap>
+      )}
     </LoadScript>
   );
 }

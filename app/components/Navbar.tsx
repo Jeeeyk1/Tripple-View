@@ -183,14 +183,12 @@ export function Navbar({ userSession }: NavbarProps) {
                     >
                       Profile
                     </Link>
+
                     {userSession.userType == UserType.USER && (
-                      <Link
-                        href="/reservations"
-                        className="text-sm font-medium"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        My Reservations
-                      </Link>
+                      <Link href="/reservations">My Reservations</Link>
+                    )}
+                    {userSession.userType != UserType.USER && (
+                      <Link href="/admin">Admin Dashboard</Link>
                     )}
                     <Button variant="outline" onClick={() => logoutHandler()}>
                       Log out

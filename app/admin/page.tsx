@@ -100,22 +100,7 @@ export default function AdminDashboard() {
             </Card>
           </Link>
         ) : (
-          <Card className="hover:shadow-lg transition-shadow border-2 hover:border-secondary">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Total Condos
-              </CardTitle>
-              <Home className="h-4 w-4 text-secondary" />
-            </CardHeader>
-            {isFetching ? (
-              <div>Loading...</div>
-            ) : (
-              <CardContent>
-                <div className="text-2xl font-bold">{condos?.length}</div>
-                <div className="text-xs text-muted-foreground mt-1"></div>
-              </CardContent>
-            )}
-          </Card>
+          ""
         )}
         <Link href="/admin/reservations?status=pending">
           <Card className="hover:shadow-lg transition-shadow border-2 hover:border-secondary">

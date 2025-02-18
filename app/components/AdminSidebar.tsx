@@ -64,8 +64,7 @@ export function AdminSidebar({ userInfo }: AdminSidebarProps) {
       Cookies.remove("user");
       Cookies.remove("token");
 
-      window.location.reload();
-      router.push("/");
+      router.push("/login");
     }
   };
   return (

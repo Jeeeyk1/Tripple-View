@@ -1,3 +1,5 @@
+
+"use client"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -24,8 +26,17 @@ interface Location {
 }
 export default function Home() {
   const locations: Location[] = [
-    { id: 1, lat: 14.583 , lng: 120.983, name: "Ermita, Manila Triple View Condominium" },
+    {
+      id: 1,
+      lat: 14.583,
+      lng: 120.983,
+      name: "Ermita, Manila Triple View Condominium",
+    },
   ];
+  const openGoogleMapsNavigation = (lat: number, lng: number) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, "_blank");
+  };
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Hero Section */}
@@ -175,7 +186,8 @@ export default function Home() {
                 <h3 className="text-xl font-bold mb-2">Flexible Terms</h3>
                 <p className="text-gray-600">
                   Choose from daily, weekly, or monthly stays to suit your
-                  needs, whether you&apos;re on a short trip or an extended stay.
+                  needs, whether you&apos;re on a short trip or an extended
+                  stay.
                 </p>
               </CardContent>
             </Card>
@@ -328,9 +340,17 @@ export default function Home() {
           </Button>
         </div>
       </section>
-      <div className="mt-32 mb-32">
+      <div className="mt-32 mb-11">
         <GoogleMapComponent locations={locations} />
       </div>
+      <Button
+        onClick={(e) => {
+          openGoogleMapsNavigation(14.583, 120.983);
+        }}
+        className="w-52  bg-amber-500 hover:bg-amber-600 text-white flex items-center m-auto mb-11"
+      >
+        Go to Google Maps
+      </Button>
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
@@ -342,11 +362,13 @@ export default function Home() {
               <p className="text-gray-400">Ermita, Manila, Metro Manila</p>
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-4" id="contact">Contact</h3>
+              <h3 className="text-xl font-bold mb-4" id="contact">
+                Contact
+              </h3>
               <p className="text-gray-400">
-                Email: info@tripleview.com
+                Email: tripleviewguesthouse@gmail.com
                 <br />
-                Phone: +63 XXX XXX XXXX
+                Phone: 0917 587 4227
               </p>
             </div>
             <div>

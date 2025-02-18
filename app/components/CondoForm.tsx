@@ -210,7 +210,7 @@ export default function CondoForm({ condoId }: CondoFormProps) {
           addCondo(updatedCondo);
           toast({ title: "Success", description: "Condo added successfully" });
         }
-        router.push("/admin/condos");
+        router.push("/admin");
       } else {
         throw new Error("Failed to submit condo");
       }
