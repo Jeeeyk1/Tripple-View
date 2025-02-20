@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Cookies from "js-cookie";
+import { useAuth } from "../provider/AuthContext";
 import {
   Card,
   CardContent,
@@ -18,8 +19,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { signIn } from "next-auth/react";
 import { UserType } from "@/lib/types";
+import { User } from "../provider/AuthContext";
 
 export default function AuthPage() {
+  const { login } = useAuth();
   const [loginEmail, setLoginEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -47,13 +50,27 @@ export default function AuthPage() {
           description: "You have been logged in successfully.",
         });
         const data = await response.json();
+        const userData: User = {
+          _id: data.user._id,
+          email: data.user.email,
+          name: data.user.name,
+          userType: data.user.userType,
+        };
+        login(userData);
         Cookies.set("user", JSON.stringify(data.user), { expires: 1 });
         Cookies.set("token", JSON.stringify(data.token), {
           expires: 1,
         });
 
         window.dispatchEvent(new Event("userSessionUpdated"));
-        router.push("/");
+        if (
+          data.user.userType == UserType.ADMIN ||
+          data.user.userType == UserType.HOST
+        ) {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
       } else {
         const data = await response.json();
         toast({

@@ -21,12 +21,14 @@ import {
 } from "lucide-react";
 import { User } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../provider/AuthContext";
 interface AdminSidebarProps {
   userInfo: User;
 }
- 
+
 export function AdminSidebar({ userInfo }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { logout } = useAuth();
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const sidebarNavItems = [
@@ -63,7 +65,7 @@ export function AdminSidebar({ userInfo }: AdminSidebarProps) {
     if (response.ok) {
       Cookies.remove("user");
       Cookies.remove("token");
-
+      logout();
       router.push("/login");
     }
   };

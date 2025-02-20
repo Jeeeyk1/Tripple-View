@@ -13,6 +13,7 @@ import Cookies from "js-cookie";
 // Create a new instance of QueryClient
 const queryClient = new QueryClient();
 import { usePathname } from "next/navigation";
+import { AuthProvider } from "./provider/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 enum UserType {
@@ -25,41 +26,25 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [userSession, setUserSession] = useState<UserSession | null>(null);
   const pathname = usePathname();
-  useEffect(() => {
-    const updateUserSession = () => {
-      const user = Cookies.get("user");
-      setUserSession(user ? JSON.parse(user) : null);
-    };
 
-    // Load user on mount
-    updateUserSession();
-
-    // Listen for login updates
-    window.addEventListener("userSessionUpdated", updateUserSession);
-
-    return () => {
-      window.removeEventListener("userSessionUpdated", updateUserSession);
-    };
-  }, []);
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen`}>
         <QueryClientProvider client={queryClient}>
           <SessionProvider>
-            <div className="flex h-screen">
-              <main className="flex-1 overflow-auto">
-                <div className=" ">
-                  {pathname && !pathname.startsWith("/admin") && (
-                    <Navbar userSession={userSession} />
-                  )}
+            <AuthProvider>
+              <div className="flex h-screen">
+                <main className="flex-1 overflow-auto">
+                  <div className=" ">
+                    {pathname && !pathname.startsWith("/admin") && <Navbar />}
 
-                  {children}
-                </div>
-              </main>
-            </div>
-            <Toaster />
+                    {children}
+                  </div>
+                </main>
+              </div>
+              <Toaster />
+            </AuthProvider>
           </SessionProvider>
         </QueryClientProvider>
       </body>

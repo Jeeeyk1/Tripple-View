@@ -128,7 +128,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/admin/reservations?status=pending">
+        <Link href="/admin/reservations?status=">
           <Card className="hover:shadow-lg transition-shadow border-2 hover:border-secondary">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">

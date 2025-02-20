@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+
 import {
   Card,
   CardContent,
@@ -29,16 +31,38 @@ export default function CondosPage() {
   }, [setCondos]);
 
   const handleRemove = async (id: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this condo?"
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
     try {
       const response = await fetch(`/api/condos/${id}`, {
         method: "DELETE",
       });
+
       if (response.ok) {
+        toast({
+          title: "Deleted",
+          description: "The condo has been successfully deleted.",
+        });
         deleteCondo(id);
       } else {
-        console.error("Failed to delete condo");
+        toast({
+          title: "Deletion Failed",
+          description: "Failed to delete the condo. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while deleting the condo.",
+        variant: "destructive",
+      });
       console.error("Error deleting condo:", error);
     }
   };
@@ -66,8 +90,8 @@ export default function CondosPage() {
               <CardTitle>{condo.name}</CardTitle>
               <CardDescription className="flex items-center">
                 <User className="h-4 w-4 mr-1" />
-                {users?.filter((user) => user._id == condo.owner)[0].name
-                   || "Unknown Owner"}
+                {users?.filter((user) => user._id == condo.owner)[0].name ||
+                  "Unknown Owner"}
               </CardDescription>
             </CardHeader>
             <CardContent>

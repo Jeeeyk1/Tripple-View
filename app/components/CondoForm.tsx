@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
-import type { CondoById, User } from "@/lib/types";
+import { UserType, type CondoById, type User } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useGetCondoById, useGetUsers } from "@/lib/api/api";
 import Image from "next/image";
+import { useAuth } from "../provider/AuthContext";
 
 interface CondoFormProps {
   condoId: string;
@@ -35,6 +36,7 @@ const emptyCondo: Partial<CondoById> = {
 };
 
 export default function CondoForm({ condoId }: CondoFormProps) {
+  const { user } = useAuth();
   const [hosts, setHosts] = useState<User[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -339,45 +341,47 @@ export default function CondoForm({ condoId }: CondoFormProps) {
               </div>
             )}
           </div>
-             <div className="space-y-2">
-                      <Label htmlFor="images">Display Images</Label>
-                      <Input
-                        id="images"
-                        name="images"
-                        type="file"
-                        accept="image/*"
-                        multiple // Allow multiple image selection
-                        onChange={handleMultipleImageChange}
-                      />
-                      {imagePreviews.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {imagePreviews.map((preview, index) => (
-                            <Image
-                              key={index}
-                              src={preview}
-                              alt={`Preview ${index}`}
-                              width={100}
-                              height={100}
-                              className="rounded-md"
-                            />
-                          ))}
-                        </div>
-                      )}
-                       {imagePreviews.length == 0 &&( formData.images && formData.images?.length>0) &&(
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.images.map((preview, index) => (
-                            <Image
-                              key={index}
-                              src={preview}
-                              alt={`Preview ${index}`}
-                              width={100}
-                              height={100}
-                              className="rounded-md"
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
+          <div className="space-y-2">
+            <Label htmlFor="images">Display Images</Label>
+            <Input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/*"
+              multiple // Allow multiple image selection
+              onChange={handleMultipleImageChange}
+            />
+            {imagePreviews.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {imagePreviews.map((preview, index) => (
+                  <Image
+                    key={index}
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    width={100}
+                    height={100}
+                    className="rounded-md"
+                  />
+                ))}
+              </div>
+            )}
+            {imagePreviews.length == 0 &&
+              formData.images &&
+              formData.images?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.images.map((preview, index) => (
+                    <Image
+                      key={index}
+                      src={preview}
+                      alt={`Preview ${index}`}
+                      width={100}
+                      height={100}
+                      className="rounded-md"
+                    />
+                  ))}
+                </div>
+              )}
+          </div>
           <div className="space-y-2">
             <Label htmlFor="amenities">Amenities (comma-separated)</Label>
             <Input
@@ -387,30 +391,38 @@ export default function CondoForm({ condoId }: CondoFormProps) {
               onChange={handleAmenitiesChange}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="owner">Owner</Label>
-            <Select
-              name="owner"
-              value={formData.owner?._id} // ✅ Correct: Use the owner's _id
-              onValueChange={(value) => {
-                const selectedHost = hosts.find((host) => host._id === value);
-                if (selectedHost) {
-                  handleOwnerChange(selectedHost.name, selectedHost._id);
-                }
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select an owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {hosts.map((host) => (
-                  <SelectItem key={host._id} value={host._id}>
-                    {host.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {user?.userType == UserType.ADMIN && (
+            <div className="space-y-2">
+              <Label htmlFor="owner">Owner</Label>
+              <div className="relative overflow-hidden">
+              <Select
+                name="owner"
+                value={formData.owner?._id} // ✅ Correct: Use the owner's _id
+                onValueChange={(value) => {
+                  const selectedHost = hosts.find((host) => host._id === value);
+                  if (selectedHost) {
+                    handleOwnerChange(selectedHost.name, selectedHost._id);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an owner" />
+                </SelectTrigger>
+                
+                  {" "}
+                  <SelectContent >
+                    {hosts.map((host) => (
+                      <SelectItem key={host._id} value={host._id}>
+                        {host.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+             
+              </Select>
+              </div>
+            </div>
+          )}
+
           <Button type="submit" className="w-full" disabled={isUploading}>
             {isUploading
               ? "Uploading..."

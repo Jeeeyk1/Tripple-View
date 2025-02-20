@@ -18,6 +18,7 @@ import {
   Menu,
 } from "lucide-react";
 import { User } from "@/lib/types";
+import { useAuth } from "../provider/AuthContext";
 
 interface HostSidebarParams {
   userInfo: User | undefined;
@@ -26,7 +27,7 @@ export function HostSidebar({ userInfo }: HostSidebarParams) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
-
+  const { logout } = useAuth();
   const logoutHandler = async () => {
     const response = await fetch("/api/auth/logout", {
       method: "GET",
@@ -34,9 +35,9 @@ export function HostSidebar({ userInfo }: HostSidebarParams) {
     if (response.ok) {
       Cookies.remove("user");
       Cookies.remove("token");
-      console.log("routing")
+      console.log("routing");
+      logout();
       router.push("/");
-
     }
   };
   const sidebarNavItems = [

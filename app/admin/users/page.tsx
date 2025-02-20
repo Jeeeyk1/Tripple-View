@@ -91,10 +91,32 @@ export default function UsersPage() {
   };
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement add user functionality here
-    console.log("Add user:", newUser);
-    setIsDialogOpen(false);
-    setNewUser({ name: "", email: "", password: "", userType: UserType.USER });
+
+    try {
+      await axios.post(`/api/users`, {
+        email: newUser.email,
+        password: newUser.password,
+        userType: newUser.userType,
+        name: newUser.name,
+      });
+      // await updateUser(editingUser._id, editingUser)
+      toast({ title: "Success", description: "User updated successfully" });
+      window.location.reload();
+      setIsDialogOpen(false);
+      setEditingUser(null);
+      setNewUser({
+        name: "",
+        email: "",
+        password: "",
+        userType: UserType.USER,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update user",
+        variant: "destructive",
+      });
+    }
   };
   const openEditDialog = (user: any) => {
     setEditingUser(user);
