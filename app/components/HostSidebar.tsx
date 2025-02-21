@@ -53,7 +53,7 @@ export function HostSidebar({ userInfo }: HostSidebarParams) {
     },
     {
       title: "Profile",
-      href: `/profile/${userInfo?._id}`,
+      href: `/admin/profile/${userInfo?._id}`,
       icon: UserCircle,
     },
   ];

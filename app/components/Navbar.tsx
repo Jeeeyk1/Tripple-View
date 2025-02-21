@@ -18,7 +18,19 @@ import { UserType } from "@/lib/types";
 export function Navbar() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const handleScroll = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    sectionId: string
+  ) => {
+    e.preventDefault();
 
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    } else {
+      router.push(`/#${sectionId}`); // Ensures it works even on different pages
+    }
+  };
   const logoutHandler = async () => {
     const response = await fetch("/api/auth/logout", {
       method: "GET",
@@ -66,13 +78,16 @@ export function Navbar() {
             <Link
               href="#amenities"
               className="text-sm font-medium hover:text-amber-500 transition-colors"
-            >
+              onClick={(e) => handleScroll(e, "amenities")}
+           >
               Amenities
             </Link>
             <Link
               href="#contact"
               className="text-sm font-medium hover:text-amber-500 transition-colors"
-            >
+              onClick={(e) => handleScroll(e, "contact")}
+
+           >
               Contact
             </Link>
 
@@ -114,7 +129,7 @@ export function Navbar() {
                   <Link href="/login">Login</Link>
                 </Button>
                 <Button className="bg-amber-500 hover:bg-amber-600 text-white">
-                  <Link href="/register">Register</Link>
+                  <Link href="/login">Register</Link>
                 </Button>
               </>
             )}

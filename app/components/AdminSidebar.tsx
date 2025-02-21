@@ -18,6 +18,7 @@ import {
   Settings,
   LogOut,
   Menu,
+  UserCircle,
 } from "lucide-react";
 import { User } from "@/lib/types";
 import { useRouter } from "next/navigation";
@@ -53,9 +54,9 @@ export function AdminSidebar({ userInfo }: AdminSidebarProps) {
       icon: Users,
     },
     {
-      title: "Settings",
+      title: "Profile",
       href: `/admin/profile/${userInfo._id}`,
-      icon: Settings,
+      icon: UserCircle,
     },
   ];
   const logoutHandler = async () => {

@@ -81,6 +81,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
       checkIn: range?.from,
       checkOut: range?.to,
     }));
+    console.log(formValues.checkIn + " checkin and out "+formValues.checkOut)
   };
 
   const isDateUnavailable = (date: Date) => {
@@ -130,8 +131,8 @@ export default function BookingPage({ params }: { params: { id: string } }) {
           guestName: formValues.name,
           email: formValues.email,
           secialRequests: formValues.specialRequests,
-          checkIn: formValues.checkIn?.toISOString(),
-          checkOut: formValues.checkOut?.toISOString(),
+          checkIn: formValues.checkIn?.toLocaleDateString("en-PH"),
+          checkOut: formValues.checkOut?.toLocaleDateString("en-PH"),
           price: price.toString(),
           condoImage: condo?.image,
           number: formValues.number,

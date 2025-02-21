@@ -40,6 +40,7 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
     data: reservationsAll,
     isLoading: loadingAll,
     error: err,
+    refetch,
   } = useGetReservations();
   const queryClient = useQueryClient();
   const reservations =
@@ -47,11 +48,13 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
   const { mutate: updateReservation } = useMutation({
     mutationFn: approveOrDeclineReservation,
     onMutate: async ({ id, action }) => {
-      await queryClient.cancelQueries({ queryKey: ["reservations"] });
+      await queryClient.cancelQueries({ queryKey: ["getReservations"] });
 
-      const previousReservations = queryClient.getQueryData(["reservations"]);
+      const previousReservations = queryClient.getQueryData([
+        "getReservations",
+      ]);
 
-      queryClient.setQueryData(["reservations"], (oldData: any) => {
+      queryClient.setQueryData(["getReservations"], (oldData: any) => {
         if (!oldData) return oldData;
 
         return oldData.map((reservation: any) =>
@@ -66,13 +69,16 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
     onError: (error, _, context) => {
       if (context?.previousReservations) {
         queryClient.setQueryData(
-          ["reservations"],
+          ["getReservations"],
           context.previousReservations
         );
       }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["getReservations"] });
+      setTimeout(() => {
+        window.location.reload();
+      }, 700);
     },
   });
 
@@ -103,7 +109,6 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
 
   const handleDecline = (id: string) => {
     updateReservation({ id, action: "decline" });
-    window.location.reload();
 
     console.log(`Decline reservation with id: ${id}`);
   };

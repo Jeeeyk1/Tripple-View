@@ -35,15 +35,22 @@ export async function GET(
     ],
   });
 
-  const bookedDates = reservations.flatMap((reservation) => {
-    const dates = [];
-    const currentDate = new Date(reservation.checkIn);
-    while (currentDate < new Date(reservation.checkOut)) {
-      dates.push(currentDate.toISOString().split("T")[0]);
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return dates;
-  });
+  const bookedDates = new Set<string>();
 
-  return NextResponse.json({ bookedDates });
+  reservations.forEach((reservation) => {
+    let currentDate = new Date(reservation.checkIn);
+    let checkOutDate = new Date(reservation.checkOut);
+  
+    // Convert to UTC+8 by adding 8 hours
+    currentDate.setHours(currentDate.getHours() + 8);
+    checkOutDate.setHours(checkOutDate.getHours() + 8);
+  
+    while (currentDate <= checkOutDate) {
+      bookedDates.add(currentDate.toISOString().split("T")[0]); // Store only the date part
+      currentDate.setDate(currentDate.getDate() + 1); // Add 1 day
+    }
+  });
+  
+
+  return NextResponse.json({ bookedDates: Array.from(bookedDates) });
 }
