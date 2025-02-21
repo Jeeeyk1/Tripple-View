@@ -72,7 +72,7 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["getReservations"] });
     },
   });
 
@@ -99,7 +99,6 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
   const handleApprove = (id: string) => {
     updateReservation({ id, action: "accept" });
     console.log(`Approve reservation with id: ${id}`);
-    window.location.reload();
   };
 
   const handleDecline = (id: string) => {
@@ -123,7 +122,7 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
       {currentReservations?.map((reservation) => (
         <Card key={reservation._id}>
           <CardHeader>
-            <CardTitle>{reservation.condoId}</CardTitle>
+            <CardTitle>{reservation._id}</CardTitle>
             <CardDescription>
               Reservation for {reservation.guestName}
             </CardDescription>
@@ -137,6 +136,7 @@ export default function ReservationListAdmin({ userInfo }: ResAdminProps) {
             </p>
             <p>Guests: {reservation.guests}</p>
             <p>Mobile Number: {reservation.number}</p>
+            <p>Email: {reservation.email}</p>
             <Badge
               className="mt-2"
               variant={

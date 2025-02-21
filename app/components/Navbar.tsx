@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../provider/AuthContext";
+import { UserType } from "@/lib/types";
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -74,6 +75,7 @@ export function Navbar() {
             >
               Contact
             </Link>
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -86,6 +88,21 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link href={`/profile/${user._id}`}>Profile</Link>
                   </DropdownMenuItem>
+                  {user?.userType == UserType.USER && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/reservations">My Reservations</Link>
+                    </DropdownMenuItem>
+                  )}
+                  {user?.userType == UserType.ADMIN && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">Admin Dashboard</Link>
+                    </DropdownMenuItem>
+                  )}
+                  {user?.userType == UserType.HOST && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">Host Dashboard</Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={logoutHandler}>
                     Log out
                   </DropdownMenuItem>
@@ -124,6 +141,16 @@ export function Navbar() {
                 <Link href="#contact" className="text-sm font-medium">
                   Contact
                 </Link>
+                {user?.userType == UserType.USER && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/reservations">My Reservations</Link>
+                  </DropdownMenuItem>
+                )}
+                {user?.userType != UserType.ADMIN && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">Admin Dashboard</Link>
+                  </DropdownMenuItem>
+                )}
                 {user ? (
                   <>
                     <Link
@@ -142,7 +169,7 @@ export function Navbar() {
                       <Link href="/login">Login</Link>
                     </Button>
                     <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
-                      <Link href="/register">Register</Link>
+                      <Link href="/login">Register</Link>
                     </Button>
                   </>
                 )}

@@ -54,7 +54,7 @@ export function AdminSidebar({ userInfo }: AdminSidebarProps) {
     },
     {
       title: "Settings",
-      href: `/profile/${userInfo._id}`,
+      href: `/admin/profile/${userInfo._id}`,
       icon: Settings,
     },
   ];

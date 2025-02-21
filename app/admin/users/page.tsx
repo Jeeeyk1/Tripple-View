@@ -93,7 +93,7 @@ export default function UsersPage() {
     e.preventDefault();
 
     try {
-      await axios.post(`/api/users`, {
+      await axios.post(`/api/auth/register`, {
         email: newUser.email,
         password: newUser.password,
         userType: newUser.userType,

@@ -74,7 +74,7 @@ export default function GoogleMapComponent({ locations }: MapProps) {
     <LoadScript
       googleMapsApiKey={
         process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-        "AIzaSyBH2lbklcZ-XOxupp_YSXjx4bVc2RK5YM4"
+        ""
       }
       onLoad={() => setMapLoaded(true)}
     >

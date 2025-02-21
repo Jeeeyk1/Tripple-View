@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Navbar } from "@/app/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+
 import Cookies from "js-cookie";
 import {
   Carousel,
@@ -33,6 +35,7 @@ import type React from "react"; // Added import for React
 import { DateRange } from "react-day-picker";
 export const dynamicParams = true;
 export default function CondoDetails() {
+  const router = useRouter();
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [userId, setUserId] = useState();
   const params = useParams();
@@ -70,7 +73,9 @@ export default function CondoDetails() {
     const startDate = new Date();
     const endDate = addDays(startDate, 90); // Fetch availability for the next 90 days
     const response = await fetch(
-      `/api/availability/${params.id}?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+      `/api/availability/${
+        params.id
+      }?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
     );
     if (response.ok) {
       const data = await response.json();
@@ -245,14 +250,17 @@ export default function CondoDetails() {
                     </li>
                   ))}
                 </ul>
-                <Dialog
+                <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white" onClick={()=>{
+                  router.push(`/condo/${params.id}/book`)
+                }}>
+                  Book Now
+                </Button>
+                {/* <Dialog
                   open={isBookingModalOpen}
                   onOpenChange={setIsBookingModalOpen}
                 >
                   <DialogTrigger asChild>
-                    <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
-                      Book Now
-                    </Button>
+                    
                   </DialogTrigger>
                   <DialogContent className="max-w-md">
                     <DialogHeader>
@@ -266,7 +274,7 @@ export default function CondoDetails() {
                       className="space-y-4 w-full max-w-xl mx-auto"
                       onSubmit={(e) => submitReservation(e)}
                     >
-                   <div>
+                      <div>
                         <Label htmlFor="name">Full Name</Label>
                         <Input
                           id="name"
@@ -290,28 +298,28 @@ export default function CondoDetails() {
                       <div>
                         <Label>Select Dates</Label>
                         <Calendar
-                            mode="range"
-                            selected={{
-                              from: formValues.checkIn,
-                              to: formValues.checkOut,
-                            }}
-                            onSelect={handleDateSelect}
-                            disabled={(date) =>
-                              isDateUnavailable(date) ||
-                              isBefore(date, new Date()) ||
-                              isAfter(date, addDays(new Date(), 90))
-                            }
-                            modifiers={{ booked: isDateUnavailable }}
-                            modifiersStyles={{
-                              booked: {
-                                backgroundColor: "#FEE2E2",
-                                color: "#EF4444",
-                                cursor: "not-allowed",
-                                opacity: 0.7,
-                              },
-                            }}
-                            className="rounded-md border"
-                          />
+                          mode="range"
+                          selected={{
+                            from: formValues.checkIn,
+                            to: formValues.checkOut,
+                          }}
+                          onSelect={handleDateSelect}
+                          disabled={(date) =>
+                            isDateUnavailable(date) ||
+                            isBefore(date, new Date()) ||
+                            isAfter(date, addDays(new Date(), 90))
+                          }
+                          modifiers={{ booked: isDateUnavailable }}
+                          modifiersStyles={{
+                            booked: {
+                              backgroundColor: "#FEE2E2",
+                              color: "#EF4444",
+                              cursor: "not-allowed",
+                              opacity: 0.7,
+                            },
+                          }}
+                          className="rounded-md border"
+                        />
                       </div>
                       <div>
                         <Label htmlFor="guests">Number of Guests</Label>
@@ -356,7 +364,7 @@ export default function CondoDetails() {
                       </Button>
                     </form>
                   </DialogContent>
-                </Dialog>
+                </Dialog> */}
               </div>
             </div>
           </CardContent>
@@ -365,4 +373,3 @@ export default function CondoDetails() {
     </div>
   );
 }
-
