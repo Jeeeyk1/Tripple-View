@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   if (condoIds.length == 0) {
     return NextResponse.json([]);
   }
-  const reservations = await Reservation.find({ condoId: { $in:condos[0] } });
+  const reservations = await Reservation.find({ condoId: { $in:condos } });
   if (!reservations) {
     return NextResponse.json({ message: "Condo not found" }, { status: 400 });
   }
