@@ -359,7 +359,7 @@ export default function Home() {
               <h3 className="text-xl font-bold mb-4">
                 Triple View Condominium
               </h3>
-              <p className="text-gray-400">Ermita, Manila, Metro Manila</p>
+              <p className="text-gray-400">Sta. Monica St, Ermita, Manila, 1000 Metro Manila</p>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-4" id="contact">
